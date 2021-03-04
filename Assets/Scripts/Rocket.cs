@@ -38,6 +38,7 @@ public class Rocket : MonoBehaviour
         position += velocity * 0.02f * constants.timeMultiplier;
 
         transform.position = position / constants.scale;
+
     }
     
     float GetDistance(Vector3 pos1, Vector3 pos2)
