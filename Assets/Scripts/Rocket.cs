@@ -7,10 +7,10 @@ public class Rocket : MonoBehaviour
 
     public float startingHeight = 111f * Mathf.Pow(10, 3); // m
 
-    private float initialVelocity = 1613f; // m.s^-1
+    private float initialVelocity = 1628f; // m.s^-1
     private float lunarModuleDryMass = 4280; // kg
     private float lunarModuleFuelMass = 10920; // kg
-    private float orbitingStageDryMass = 11900; // kg
+    private float orbitingStageDryMass = 23572; // kg
     
     public Moon moon;
     public Constants constants;
@@ -28,13 +28,14 @@ public class Rocket : MonoBehaviour
     {
         position = new Vector3(startingHeight + moon.moonRadius, 0, 0);
         transform.position = position / constants.scale;
-        Debug.Log(transform.position);
+        velocity = new Vector3(0, initialVelocity, 0);
     }
 
     void FixedUpdate()
     {
-        position += velocity;
-        velocity += acceleration;
+        acceleration = GetAcceleration(position, moon.position);
+        velocity += acceleration * 0.02f * constants.timeMultiplier;
+        position += velocity * 0.02f * constants.timeMultiplier;
 
         transform.position = position / constants.scale;
     }
@@ -47,10 +48,10 @@ public class Rocket : MonoBehaviour
         return distance;
     }
 
-    float GetGravity(float mass1, float mass2, float distance)
+    Vector3 GetAcceleration(Vector3 posRocket, Vector3 posMoon) // Assuming the only force exerted on the rocket is the gravity of the moon
     {
-        float G = 0;
-        G = constants.gravConst * mass1 * mass2 / Mathf.Pow(distance, 2);
-        return G;
+        Vector3 acceleration = posMoon - posRocket;
+        acceleration = acceleration.normalized * constants.gravConst * moon.moonMass / Mathf.Pow(GetDistance(posRocket, posMoon), 2);
+        return acceleration;
     }
 }
