@@ -7,7 +7,7 @@ public class Rocket : MonoBehaviour
 
     public float startingHeight = 111f * Mathf.Pow(10, 3); // m
 
-    private float initialVelocity = 1628f; // m.s^-1
+    private float initialVelocity = 1628f; // m.s^-1  1628f
     private float lunarModuleDryMass = 4280; // kg
     private float lunarModuleFuelMass = 10920; // kg
     private float orbitingStageDryMass = 23572; // kg
@@ -38,6 +38,7 @@ public class Rocket : MonoBehaviour
     void FixedUpdate()
     {
         acceleration = GetAcceleration(position, moon.position);
+        // Debug.Log(acceleration);
         velocity += acceleration * constants.fixedUpdateMultiplier * constants.timeMultiplier;
         position += velocity * constants.fixedUpdateMultiplier * constants.timeMultiplier;
 
