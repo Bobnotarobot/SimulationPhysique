@@ -261,6 +261,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   scale: 100000
   timeMultiplier: 100
+  fixedUpdateMultiplier: 0.02
   gravConst: 6.67e-11
 --- !u!4 &312296366
 Transform:

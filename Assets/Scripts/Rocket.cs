@@ -15,13 +15,13 @@ public class Rocket : MonoBehaviour
     public Moon moon;
     public Constants constants;
 
-    private Vector3 position = new Vector3(0,0,0);
-    private Vector3 velocity = new Vector3(0,0,0);
-    private Vector3 acceleration = new Vector3(0,0,0);
+    private Vector3 position;
+    private Vector3 velocity;
+    private Vector3 acceleration;
     
-    private Vector3 orientation = new Vector3(0,0,0);
-    private Vector3 angularVelocity = new Vector3(0,0,0);
-    private Vector3 angularAcceleration = new Vector3(0,0,0);
+    private Vector3 orientation;
+    private Vector3 angularVelocity;
+    private Vector3 angularAcceleration;
 
 
     void Start()
@@ -29,16 +29,25 @@ public class Rocket : MonoBehaviour
         position = new Vector3(startingHeight + moon.moonRadius, 0, 0);
         transform.position = position / constants.scale;
         velocity = new Vector3(0, initialVelocity, 0);
+
+        orientation = new Vector3(0, 0, 0);
+        transform.Rotate(orientation / constants.scale); // use 'tranform.Rotate(x);' not 'transform.rotation = x;' because using 3 angles not quaternions 
+        angularVelocity = new Vector3(0, 0, 0);
     }
 
     void FixedUpdate()
     {
         acceleration = GetAcceleration(position, moon.position);
-        velocity += acceleration * 0.02f * constants.timeMultiplier;
-        position += velocity * 0.02f * constants.timeMultiplier;
+        velocity += acceleration * constants.fixedUpdateMultiplier * constants.timeMultiplier;
+        position += velocity * constants.fixedUpdateMultiplier * constants.timeMultiplier;
 
         transform.position = position / constants.scale;
 
+        angularAcceleration = GetAngularAcceleration();
+        angularVelocity += angularAcceleration * constants.fixedUpdateMultiplier * constants.timeMultiplier;
+        orientation += angularVelocity * constants.fixedUpdateMultiplier * constants.timeMultiplier;
+       
+        transform.Rotate(orientation / constants.scale);
     }
     
     float GetDistance(Vector3 pos1, Vector3 pos2)
@@ -54,5 +63,11 @@ public class Rocket : MonoBehaviour
         Vector3 acceleration = posMoon - posRocket;
         acceleration = acceleration.normalized * constants.gravConst * moon.moonMass / Mathf.Pow(GetDistance(posRocket, posMoon), 2);
         return acceleration;
+    }
+
+    Vector3 GetAngularAcceleration()
+    {
+        Vector3 placeholder = new Vector3(0, 0, 0);
+        return placeholder;
     }
 }
