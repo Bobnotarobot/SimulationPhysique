@@ -32,7 +32,7 @@ public class Rocket : MonoBehaviour
         transform.position = position / constants.scale;
         velocity = new Vector3(0, initialVelocity, 0);
 
-        orientation = new Vector3(0, 0, 90);
+        orientation = new Vector3(0, 0, 0);
         transform.Rotate(orientation / constants.scale); // use 'tranform.Rotate(x);' not 'transform.rotation = x;' because using 3 angles not quaternions 
         angularVelocity = new Vector3(0, 0, 0);
     }
