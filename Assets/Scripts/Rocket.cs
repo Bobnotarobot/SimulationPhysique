@@ -32,7 +32,7 @@ public class Rocket : MonoBehaviour
         transform.position = position / constants.scale;
         velocity = new Vector3(0, initialVelocity, 0);
 
-        orientation = new Vector3(0, 0, 0);
+        orientation = new Vector3(0, 0, 90);
         transform.Rotate(orientation / constants.scale); // use 'tranform.Rotate(x);' not 'transform.rotation = x;' because using 3 angles not quaternions 
         angularVelocity = new Vector3(0, 0, 0);
     }
@@ -46,7 +46,7 @@ public class Rocket : MonoBehaviour
 
         transform.position = position / constants.scale;
 
-        angularAcceleration = getAngularAcceleration(velocity, orientation, angularVelocity);
+        //angularAcceleration = getAngularAcceleration(velocity.normalized); 
         angularVelocity += angularAcceleration * constants.fixedUpdateMultiplier * constants.timeMultiplier;
         orientation += angularVelocity * constants.fixedUpdateMultiplier * constants.timeMultiplier;
 
@@ -68,6 +68,53 @@ public class Rocket : MonoBehaviour
         return acceleration;
     }
 
+    Vector3 orientationVector(Vector3 orientation)
+    {
+        Vector3 orientationVector = new Vector3(-1 * Mathf.Sin(orientation[1]) * Mathf.Sin(orientation[2]), Mathf.Cos(orientation[0]) * Mathf.Cos(orientation[2]), Mathf.Cos(orientation[0]) * Mathf.Cos(orientation[1]));
+        // Calculating the vector based on my hypotheses that the x value is not affected when rotated around the x axis, 
+        //and that the vector depends on the multiplication of whatever method is used to calculate it individually, 
+        //and those were teseted individually (explaines the sin(-z) for the x value)
+        return orientationVector;
+    }
+
+    Vector3 angleToRotate(Vector3 orientationVector, Vector3 targetVector)
+    {
+        Vector3 orientationAngles = constants.nullVector;
+        Vector3 targetAngles = constants.nullVector;
+        Vector3 angleDifference = constants.nullVector;
+        
+        for (int i = 0; i < 3; i++) // i = 0 - x-angle, i = 1 - y-angle, i = 3 - z-angle
+        { 
+            if (orientationVector[(i+1)%3] == 0) // can't use arctan if the bottom value is 0 ie. it is vertical
+            {
+                orientationAngles[i] = 90 * orientationVector[(i+1)%3] / Mathf.Abs(orientationVector[(i+1)%3]);
+            }
+            else
+            {
+                orientationAngles[i] = Mathf.Atan(orientationVector[(i+2)%3] / orientationVector[(i+1)%3]);
+            }
+            // angles for target
+            if (targetVector[(i+1)%3] == 0)
+            {
+                targetAngles[i] = 90 * targetVector[(i+1)%3] / Mathf.Abs(targetVector[(i+1)%3]);
+            }
+            else
+            {
+                targetAngles[i] = Mathf.Atan(targetVector[(i+2)%3] / targetVector[(i+1)%3]);
+            }
+            // angles difference
+            angleDifference[i] = Mathf.Abs(targetAngles[i] - orientationAngles[i]);
+            if (angleDifference[i] > 180) // to have an angle under 180 degres --> be efficient when rotating
+            {
+                angleDifference[i] = 360 - angleDifference[i];
+            }
+        }
+        return angleDifference;
+    }
+
+}
+    
+    /*
     Vector3 angularAccelerationDirection()
     {
         Vector3 angleRotatedUntilStop = constants.nullVector;
@@ -89,22 +136,21 @@ public class Rocket : MonoBehaviour
         Vector3 orientationDifference; //How do we fkn calculate this?!
         for (int i = 0; i < 3; i++)
         {
-            if (orientationDifference[i] == 0)
+            if (orientationDifference[i] == 0 && angularVelocity[i] == 0)
             {
-                if (angularVelocity[i] == 0)
-                {
-                    angularAcceleration[i] = 0;
-                }
-                else if (angularVelocity[i] > 0)
-                {
-                    angularAcceleration[i] = -1 * angularAccelerationMultiplier;
-                }
-                else
-                {
-                    angularAcceleration[i] = angularAccelerationMultiplier;
-                }
-
+                angularAcceleration[i] = 0;
             }
+            else if (orientationDifference[i] == 0 && angularVelocity[i] < 0)
+            {
+                angularAcceleration[i] = angularAccelerationMultiplier;
+            }
+            else if (orientationDifference[i] == 0 && angularVelocity[i] > 0)
+            {
+                angularAcceleration[i] = -1 * angularAccelerationMultiplier;
+            }
+            else if (orientationDifference[i] < 0 && angularVelocity[i] = 0) { }
+
         }
     }
-}
+    */
+
