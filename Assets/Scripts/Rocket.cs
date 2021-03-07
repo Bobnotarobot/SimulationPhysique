@@ -21,10 +21,6 @@ public class Rocket : MonoBehaviour
     private float accelerationMulitplier; //Engine acceleration depends on mass left in rocket
 
     private Vector3 orientation;
-    private Vector3 angularVelocity;
-    private Vector3 angularAcceleration;
-    private float angularAccelerationMultiplier; //RCS Boosters acceleration depends on mass left in rocket
-
 
     void Start()
     {
@@ -33,9 +29,7 @@ public class Rocket : MonoBehaviour
         velocity = new Vector3(0, initialVelocity, 0);
 
         orientation = new Vector3(0, 0, 0);
-        transform.Rotate(orientation / constants.scale); // use 'tranform.Rotate(x);' not 'transform.rotation = x;' because using 3 angles not quaternions 
-        angularVelocity = new Vector3(0, 0, 0);
-
+        transform.rotation = Quaternion.Euler(orientation);
     }
 
     void FixedUpdate()
@@ -46,12 +40,9 @@ public class Rocket : MonoBehaviour
 
         transform.position = position / constants.scale;
 
-        angularAccelerationMultiplier = 1960 / lunarModuleFuelMass; // 4 thursters of 490N each
-        angularAcceleration = GetAngularAcceleration(velocity, angularVelocity, angularAccelerationMultiplier); 
-        angularVelocity += angularAcceleration * constants.fixedUpdateMultiplier * constants.timeMultiplier;
-        orientation += angularVelocity * constants.fixedUpdateMultiplier * constants.timeMultiplier;
+        orientation += AngleToRotateOnlyZ(orientation, velocity);
+        transform.rotation = Quaternion.Euler(orientation);
 
-        transform.Rotate(orientation / constants.scale);
     }
 
     float GetDistance(Vector3 pos1, Vector3 pos2)
@@ -74,20 +65,61 @@ public class Rocket : MonoBehaviour
         return acceleration;
     }
 
-    Vector3 AngleToRotate(Vector3 orientationAngles, Vector3 targetVector)
+    Vector3 AngleToRotateOnlyZ(Vector3 orientationAngles, Vector3 targetVector)
     {
         Vector3 targetAngles = constants.nullVector;
         Vector3 angleToRotate = constants.nullVector;
-        
+
+
         // Calculate the global orientation of the target vector
-        float targetMagnitude = Magnitude(targetVector);
-        for (int i = 0; i < 3; i++)
+        float x = targetVector.x;
+        float y = targetVector.y;
+
+        if (x == 0)
         {
-            targetAngles[i] = Mathf.Acos(targetVector[i] / targetMagnitude);
+            if (y > 0)
+            {
+                targetAngles.z = 0;
+            }
+            else
+            {
+                targetAngles.z = 180;
+            }
         }
-        
-        targetAngles *= 180 / Mathf.PI;
+        else if (y == 0)
+        {
+            if (x > 0)
+            {
+                targetAngles.z = -90;
+            }
+            else
+            {
+                targetAngles.z = 90;
+            }
+        }
+        else
+        {
+
+            float targetMagnitude = Magnitude(targetVector);
+            targetAngles.z = 90 - Mathf.Asin(targetVector.y / targetMagnitude) * 180 / Mathf.PI;
+
+            if (x > 0 && y < 0)
+            {
+                targetAngles.z *= -1;
+            }
+            else if (x > 0 && y > 0)
+            {
+                targetAngles.z -= 180;
+            }
+            else if (x < 0 && y < 0)
+            {
+                targetAngles.z = 180 - targetAngles.z;
+            }
+        }
+        Debug.Log(targetAngles.z);
         angleToRotate = targetAngles - orientationAngles;
+
+        // Makes it less than 180 degrees
         for (int i = 0; i < 3; i++)
         {
             if (angleToRotate[i] > 180)
@@ -102,84 +134,6 @@ public class Rocket : MonoBehaviour
 
         return angleToRotate;
     }
-    Vector3 AngleToRotateOnlyZ (Vector3 orientationAngles, Vector3 targetVector)
-    {
-        Vector3 targetAngles = constants.nullVector;
-        Vector3 angleToRotate = constants.nullVector;
-
-        // Calculate the global orientation of the target vector
-        float targetMagnitude = Magnitude(targetVector);
-        targetAngles[2] = Mathf.Acos(targetVector[1] / targetMagnitude);
-        angleToRotate = targetAngles - orientationAngles;
-        for (int i = 0; i < 3; i++)
-        {
-            if (angleToRotate[i] > 180)
-            {
-                angleToRotate[i] -= 360;
-            }
-            else if (angleToRotate[i] < -180)
-            {
-                angleToRotate[i] += 360;
-            }
-        }
-        return angleToRotate;
-    }
-
-    
-    float AccelerationDirection( float angleToRotate, float angularVelocity, float angularAcceleration)
-    {
-        float angleRotatedAtStop = -1 * Mathf.Pow(angularVelocity, 2) / (2 * angularAcceleration);
-        float angleToGo = angleToRotate - angleRotatedAtStop;
-        if (angleToGo > 0 && angleToRotate > 0 || angleToGo >= 0 && angleToRotate < 0)
-        {
-            return 1;
-        }
-        return 0;
-    }
-        
-    Vector3 GetAngularAcceleration(Vector3 targetVector, Vector3 angularVelocity, float angularAccelerationMultiplier)
-    {
-        Vector3 accelerationVector = constants.nullVector;
-        //Vector3 angleToRotate = AngleToRotate(orientation, targetVector);
-        Vector3 angleToRotate = AngleToRotateOnlyZ(orientation, targetVector);
-        for (int i = 0; i < 3; i++) 
-        {
-            if (angleToRotate[i] == 0 && angularVelocity[i] == 0)
-            {
-                accelerationVector[i] = 0;
-            }
-            else if (angleToRotate[i] == 0 && angularVelocity[i] < 0)
-            {
-                accelerationVector[i] = 1;
-            }
-            else if (angleToRotate[i] == 0 && angularVelocity[i] > 0)
-            {
-                accelerationVector[i] = -1;
-            }
-            else if (angleToRotate[i] < 0 && angularVelocity[i] == 0)
-            {
-                accelerationVector[i] = -1;
-            }
-            else if (angleToRotate[i] > 0 && angularVelocity[i] == 0)
-            {
-                accelerationVector[i] = 1;
-            }
-            else if (angleToRotate[i] < 0 && angularVelocity[i] < 0)
-            {
-                accelerationVector[i] = AccelerationDirection(angleToRotate[i], angularVelocity[i], angularAccelerationMultiplier);
-            }
-            else if (angleToRotate[i] > 0 && angularVelocity[i] > 0)
-            {
-                accelerationVector[i] = AccelerationDirection(angleToRotate[i], angularVelocity[i], -angularAccelerationMultiplier);
-            }
-        }
-        accelerationVector *= angularAccelerationMultiplier;
-        return accelerationVector;
-    }
-
-
-
-
 }
     
 
