@@ -102,6 +102,28 @@ public class Rocket : MonoBehaviour
 
         return angleToRotate;
     }
+    Vector3 AngleToRotateOnlyZ (Vector3 orientationAngles, Vector3 targetVector)
+    {
+        Vector3 targetAngles = constants.nullVector;
+        Vector3 angleToRotate = constants.nullVector;
+
+        // Calculate the global orientation of the target vector
+        float targetMagnitude = Magnitude(targetVector);
+        targetAngles[2] = Mathf.Acos(targetVector[1] / targetMagnitude);
+        angleToRotate = targetAngles - orientationAngles;
+        for (int i = 0; i < 3; i++)
+        {
+            if (angleToRotate[i] > 180)
+            {
+                angleToRotate[i] -= 360;
+            }
+            else if (angleToRotate[i] < -180)
+            {
+                angleToRotate[i] += 360;
+            }
+        }
+        return angleToRotate;
+    }
 
     
     float AccelerationDirection( float angleToRotate, float angularVelocity, float angularAcceleration)
@@ -118,7 +140,8 @@ public class Rocket : MonoBehaviour
     Vector3 GetAngularAcceleration(Vector3 targetVector, Vector3 angularVelocity, float angularAccelerationMultiplier)
     {
         Vector3 accelerationVector = constants.nullVector;
-        Vector3 angleToRotate = AngleToRotate(orientation, targetVector);
+        //Vector3 angleToRotate = AngleToRotate(orientation, targetVector);
+        Vector3 angleToRotate = AngleToRotateOnlyZ(orientation, targetVector);
         for (int i = 0; i < 3; i++) 
         {
             if (angleToRotate[i] == 0 && angularVelocity[i] == 0)
