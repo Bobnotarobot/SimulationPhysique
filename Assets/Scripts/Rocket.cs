@@ -8,9 +8,11 @@ public class Rocket : MonoBehaviour
     public float startingHeight = 111f * Mathf.Pow(10, 3); // m
 
     private float initialVelocity = 1628f; // m.s^-1  1628f
-    private float lunarModuleDryMass = 4280; // kg
-    private float lunarModuleFuelMass = 10920; // kg
+    private float LMDryMass = 4280; // kg mass when the rocket is empty
+    private float LMFuelMass = 10920; // kg mass of the fuel only
     private float orbitingStageDryMass = 23572; // kg
+    private static float LMThrust = 45.04f * Mathf.Pow(10, 3); // N
+    private float LMFuelConsumption = 101972 * Mathf.Pow(10, -3)/ LMThrust; // kg.s^-1.N^-1 Fuel consumption (g/s) per unit of thrust (N)
 
     public Moon moon;
     public Constants constants;
@@ -19,6 +21,8 @@ public class Rocket : MonoBehaviour
     private Vector3 velocity;
     private Vector3 acceleration;
     private float accelerationMulitplier; //Engine acceleration depends on mass left in rocket
+
+    private bool accelerating = false;
 
     private Vector3 orientation;
 
@@ -45,6 +49,11 @@ public class Rocket : MonoBehaviour
     void FixedUpdate()
     {
         acceleration = GetGravityAcceleration(position, moon.position);
+        
+        if (accelerating)
+        {
+            acceleration += Accelerate(orientation);   
+        }
         velocity += acceleration * constants.fixedUpdateMultiplier * constants.timeMultiplier;
         position += velocity * constants.fixedUpdateMultiplier * constants.timeMultiplier;
 
@@ -73,6 +82,15 @@ public class Rocket : MonoBehaviour
         Vector3 acceleration = posMoon - posRocket;
         acceleration = acceleration.normalized * constants.gravConst * moon.moonMass / Mathf.Pow(GetDistance(posRocket, posMoon), 2);
         return acceleration;
+    }
+
+    Vector3 Accelerate(Vector3 orientation)
+    {
+        float zOrientation = orientation.z * Mathf.PI / 180;
+        Vector3 addedAcceleration = new Vector3(Mathf.Sin(zOrientation - Mathf.PI), Mathf.Cos(zOrientation), 0);
+        addedAcceleration *= LMThrust / (LMDryMass + LMFuelMass);
+        // LMFuelMass -= LMFuelConsumption * constants.fixedUpdateMultiplier * constants.timeMultiplier;
+        return addedAcceleration;
     }
 
     Vector3 AngleToRotateOnlyZ(Vector3 orientationAngles, Vector3 targetVector)
@@ -126,7 +144,7 @@ public class Rocket : MonoBehaviour
                 // nothing to do
             }
         }
-        Debug.Log(targetAngles.z);
+
         angleToRotate = targetAngles - orientationAngles;
 
         // Makes it less than 180 degrees
