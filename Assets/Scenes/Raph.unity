@@ -136,7 +136,7 @@ GameObject:
   - component: {fileID: 479806366}
   m_Layer: 0
   m_Name: Rocket
-  m_TagString: Untagged
+  m_TagString: Rocket
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -328,8 +328,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6059e21a15b5b9540a8cda94da241edc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  constants: {fileID: 0}
-  timeText: {fileID: 0}
+  constants: {fileID: 1260143509}
+  timeTxt: {fileID: 2095623868}
   time: 0
 --- !u!114 &1170287745
 MonoBehaviour:
@@ -423,7 +423,7 @@ GameObject:
   - component: {fileID: 1260143509}
   m_Layer: 0
   m_Name: Constants
-  m_TagString: Untagged
+  m_TagString: Constants
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -444,6 +444,7 @@ MonoBehaviour:
   timeMultiplier: 10000
   fixedUpdateMultiplier: 0.02
   gravConst: 6.67e-11
+  nullVector: {x: 0, y: 0, z: 0}
 --- !u!4 &1260143510
 Transform:
   m_ObjectHideFlags: 0
@@ -473,7 +474,7 @@ GameObject:
   - component: {fileID: 1656070316}
   m_Layer: 0
   m_Name: Moon
-  m_TagString: Untagged
+  m_TagString: Moon
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

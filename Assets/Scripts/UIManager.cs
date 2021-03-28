@@ -12,6 +12,11 @@ public class UIManager : MonoBehaviour
     
     void Start()
     {
+        if (constants == null)
+        {
+            constants = GameObject.FindGameObjectWithTag("Constants").GetComponent<Constants>();
+        }
+        
         StartCoroutine((Timer()));
     }
 

@@ -24,6 +24,16 @@ public class Rocket : MonoBehaviour
 
     void Start()
     {
+        if (constants == null)
+        {
+            constants = GameObject.FindGameObjectWithTag("Constants").GetComponent<Constants>();
+        }
+        
+        if (moon == null)
+        {
+            moon = GameObject.FindGameObjectWithTag("Moon").GetComponent<Moon>();
+        }
+        
         position = new Vector3(startingHeight + moon.moonRadius, 0, 0);
         transform.position = position / constants.scale;
         velocity = new Vector3(0, initialVelocity, 0);
@@ -109,11 +119,11 @@ public class Rocket : MonoBehaviour
             }
             else if (x > 0 && y > 0)
             {
-                targetAngles.z -= 180;
+                targetAngles.z *= -1;
             }
             else if (x < 0 && y < 0)
             {
-                targetAngles.z = 180 - targetAngles.z;
+                // nothing to do
             }
         }
         Debug.Log(targetAngles.z);
