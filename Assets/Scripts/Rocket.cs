@@ -9,10 +9,10 @@ public class Rocket : MonoBehaviour
 
     private float initialVelocity = 1628f; // m.s^-1  1628f
     private float LMDryMass = 4280; // kg mass when the rocket is empty
-    private float LMFuelMass = 10920; // kg mass of the fuel only
+    private float LMFuelMass = 7942; // kg mass of the fuel only
     private float orbitingStageDryMass = 23572; // kg
     private static float LMThrust = 45.04f * Mathf.Pow(10, 3); // N
-    private float LMFuelConsumption = 101972 * Mathf.Pow(10, -3)/ LMThrust; // kg.s^-1.N^-1 Fuel consumption (g/s) per unit of thrust (N)
+    private float LMMassFlowRate = 8.7279f; // kg.s^-1
 
     public Moon moon;
     public Constants constants;
@@ -86,11 +86,14 @@ public class Rocket : MonoBehaviour
 
     Vector3 Accelerate(Vector3 orientation)
     {
-        float zOrientation = orientation.z * Mathf.PI / 180;
-        Vector3 addedAcceleration = new Vector3(Mathf.Sin(zOrientation - Mathf.PI), Mathf.Cos(zOrientation), 0);
-        addedAcceleration *= LMThrust / (LMDryMass + LMFuelMass);
-        // LMFuelMass -= LMFuelConsumption * constants.fixedUpdateMultiplier * constants.timeMultiplier;
-        return addedAcceleration;
+        if (LMFuelMass > 0)
+        {
+            float zOrientation = orientation.z * Mathf.PI / 180;
+            Vector3 addedAcceleration = new Vector3(Mathf.Sin(zOrientation - Mathf.PI), Mathf.Cos(zOrientation), 0);
+            addedAcceleration *= LMThrust / (LMDryMass + LMFuelMass);
+            LMFuelMass -= LMMassFlowRate * constants.fixedUpdateMultiplier * constants.timeMultiplier;
+            return addedAcceleration;   
+        }
     }
 
     Vector3 AngleToRotateOnlyZ(Vector3 orientationAngles, Vector3 targetVector)
