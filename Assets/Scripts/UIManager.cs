@@ -8,6 +8,7 @@ public class UIManager : MonoBehaviour
 {
     public Constants constants;
     public TextMeshProUGUI timeTxt;
+    public TextMeshProUGUI fuelTxt;
     public float time = 0;
     
     void Start()
@@ -16,7 +17,7 @@ public class UIManager : MonoBehaviour
         {
             constants = GameObject.FindGameObjectWithTag("Constants").GetComponent<Constants>();
         }
-        
+    
         StartCoroutine((Timer()));
     }
 
@@ -75,5 +76,10 @@ public class UIManager : MonoBehaviour
             timeTxt.text = "time: " + TimeConverter(time);
             yield return new WaitForSeconds(0.1f);
         }
+    }
+
+    public void UpdateFuel(float inititalFuel, float currentFuel)
+    {
+        fuelTxt.text = "fuel: " + Mathf.Round(currentFuel / inititalFuel * 1000) / 10 + "%";
     }
 }

@@ -9,20 +9,22 @@ public class Rocket : MonoBehaviour
 
     private float initialVelocity = 1628f; // m.s^-1  1628f
     private float LMDryMass = 4280; // kg mass when the rocket is empty
-    private float LMFuelMass = 7942; // kg mass of the fuel only
+    private float LMInitFuelMass = 7942; // kg mass of the fuel only
+    private float LMFuelMass = 0;
     private float orbitingStageDryMass = 23572; // kg
     private static float LMThrust = 45.04f * Mathf.Pow(10, 3); // N
     private float LMMassFlowRate = 8.7279f; // kg.s^-1
 
     public Moon moon;
     public Constants constants;
+    public UIManager uiManager;
 
     private Vector3 position;
     private Vector3 velocity;
     private Vector3 acceleration;
     private float accelerationMulitplier; //Engine acceleration depends on mass left in rocket
 
-    private bool accelerating = false;
+    private bool accelerating = true;
 
     private Vector3 orientation;
 
@@ -37,6 +39,13 @@ public class Rocket : MonoBehaviour
         {
             moon = GameObject.FindGameObjectWithTag("Moon").GetComponent<Moon>();
         }
+        
+        if (uiManager == null)
+        {
+            uiManager = GameObject.FindGameObjectWithTag("Canvas").GetComponent<UIManager>();
+        }
+        
+        LMFuelMass = LMInitFuelMass;
         
         position = new Vector3(startingHeight + moon.moonRadius, 0, 0);
         transform.position = position / constants.scale;
@@ -54,6 +63,7 @@ public class Rocket : MonoBehaviour
         {
             acceleration += Accelerate(orientation);   
         }
+
         velocity += acceleration * constants.fixedUpdateMultiplier * constants.timeMultiplier;
         position += velocity * constants.fixedUpdateMultiplier * constants.timeMultiplier;
 
@@ -92,8 +102,17 @@ public class Rocket : MonoBehaviour
             Vector3 addedAcceleration = new Vector3(Mathf.Sin(zOrientation - Mathf.PI), Mathf.Cos(zOrientation), 0);
             addedAcceleration *= LMThrust / (LMDryMass + LMFuelMass);
             LMFuelMass -= LMMassFlowRate * constants.fixedUpdateMultiplier * constants.timeMultiplier;
-            return addedAcceleration;   
+            
+            if (LMFuelMass < 0)
+            {
+                LMFuelMass = 0;
+                accelerating = false;
+            }
+
+            uiManager.UpdateFuel(LMInitFuelMass, LMFuelMass);
+            return addedAcceleration;
         }
+        return constants.nullVector;
     }
 
     Vector3 AngleToRotateOnlyZ(Vector3 orientationAngles, Vector3 targetVector)

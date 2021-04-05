@@ -8,6 +8,7 @@ TagManager:
   - Moon
   - Rocket
   - RocketCamera
+  - Canvas
   layers:
   - Default
   - TransparentFX
