@@ -2,27 +2,26 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Rocket : MonoBehaviour
+public class LM : MonoBehaviour
 {
-
-    public float startingHeight = 111f * Mathf.Pow(10, 3); // m
 
     private float initialVelocity = 1628f; // m.s^-1  1628f
     private float LMDryMass = 4280; // kg mass when the rocket is empty
     private float LMInitFuelMass = 7942; // kg mass of the fuel only
-    private float CSMDryMass = 23572; // kg
+    private float LMFuelMass = 0;
+    private static float LMThrust = 45.04f * Mathf.Pow(10, 3); // N
+    private float LMMassFlowRate = 8.7279f; // kg.s^-1
 
     public Moon moon;
     public Constants constants;
-    public LM lM;
-    public CSM cSM;
+    public UIManager uiManager;
 
     private Vector3 position;
     private Vector3 velocity;
     private Vector3 acceleration;
     private float accelerationMulitplier; //Engine acceleration depends on mass left in rocket
 
-    private float time = 0;
+    private bool accelerating = true;
     private bool linked = true;
 
     private Vector3 orientation;
@@ -38,32 +37,32 @@ public class Rocket : MonoBehaviour
         {
             moon = GameObject.FindGameObjectWithTag("Moon").GetComponent<Moon>();
         }
-
-        position = new Vector3(startingHeight + moon.moonRadius, 0, 0);
-        transform.position = position / constants.scale;
-        velocity = new Vector3(0, initialVelocity, 0);
-
-        orientation = new Vector3(0, 0, 0);
-        transform.rotation = Quaternion.Euler(orientation);
+        
+        if (uiManager == null)
+        {
+            uiManager = GameObject.FindGameObjectWithTag("Canvas").GetComponent<UIManager>();
+        }
     }
 
     void FixedUpdate()
     {
-        acceleration = GetGravityAcceleration(position, moon.position);
-
-        velocity += acceleration * constants.fixedUpdateMultiplier * constants.timeMultiplier;
-        position += velocity * constants.fixedUpdateMultiplier * constants.timeMultiplier;
-
-        transform.position = position / constants.scale;
-
-        orientation += AngleToRotateOnlyZ(orientation, velocity);
-        transform.rotation = Quaternion.Euler(orientation);
-
-        if (time > 5)
+        if (!linked)
         {
-            Unlink();
+            acceleration = GetGravityAcceleration(position, moon.position);
+        
+            if (accelerating)
+            {
+                acceleration += Accelerate(orientation);   
+            }
+
+            velocity += acceleration * constants.fixedUpdateMultiplier * constants.timeMultiplier;
+            position += velocity * constants.fixedUpdateMultiplier * constants.timeMultiplier;
+
+            transform.position = position / constants.scale;
+
+            orientation += AngleToRotateOnlyZ(orientation, velocity);
+            transform.rotation = Quaternion.Euler(orientation);   
         }
-        time += constants.fixedUpdateMultiplier;
     }
 
     float GetDistance(Vector3 pos1, Vector3 pos2)
@@ -84,6 +83,27 @@ public class Rocket : MonoBehaviour
         Vector3 acceleration = posMoon - posRocket;
         acceleration = acceleration.normalized * constants.gravConst * moon.moonMass / Mathf.Pow(GetDistance(posRocket, posMoon), 2);
         return acceleration;
+    }
+
+    Vector3 Accelerate(Vector3 orientation)
+    {
+        if (LMFuelMass > 0)
+        {
+            float zOrientation = orientation.z * Mathf.PI / 180;
+            Vector3 addedAcceleration = new Vector3(Mathf.Sin(zOrientation - Mathf.PI), Mathf.Cos(zOrientation), 0);
+            addedAcceleration *= LMThrust / (LMDryMass + LMFuelMass);
+            LMFuelMass -= LMMassFlowRate * constants.fixedUpdateMultiplier * constants.timeMultiplier;
+            
+            if (LMFuelMass < 0)
+            {
+                LMFuelMass = 0;
+                accelerating = false;
+            }
+
+            uiManager.UpdateFuel(LMInitFuelMass, LMFuelMass);
+            return addedAcceleration;
+        }
+        return constants.nullVector;
     }
 
     Vector3 AngleToRotateOnlyZ(Vector3 orientationAngles, Vector3 targetVector)
@@ -156,14 +176,16 @@ public class Rocket : MonoBehaviour
         return angleToRotate;
     }
 
-    private void Unlink()
+    public void Unlink()
     {
         linked = false;
-        lM.Unlink();
-        cSM.Unlink();
-        Destroy(gameObject);
+        transform.parent = null;
+        
+        // position = new Vector3(startingHeight + moon.moonRadius, 0, 0);
+        transform.position = position / constants.scale;
+        velocity = new Vector3(0, initialVelocity, 0);
+
+        orientation = new Vector3(0, 0, 0);
+        transform.rotation = Quaternion.Euler(orientation);
     }
 }
-    
-
-
