@@ -176,16 +176,26 @@ public class LM : MonoBehaviour
         return angleToRotate;
     }
 
-    public void Unlink()
+    public void Unlink(Vector3 givenPosition, Vector3 givenVelocity, Vector3 givenOrientation)
     {
         linked = false;
+        position = transform.position * constants.scale;
+        position = position * Magnitude(givenPosition) / Magnitude(position);
+        velocity = UpdateVelocity(givenVelocity, position);
         transform.parent = null;
-        
-        // position = new Vector3(startingHeight + moon.moonRadius, 0, 0);
-        transform.position = position / constants.scale;
-        velocity = new Vector3(0, initialVelocity, 0);
 
-        orientation = new Vector3(0, 0, 0);
+        orientation = givenOrientation;
         transform.rotation = Quaternion.Euler(orientation);
+    }
+
+    private Vector3 UpdateVelocity(Vector3 givenVelocity, Vector3 givenPosition)
+    {
+        float xMultiplier = 0;
+        float yMultiplier = 0;
+
+        xMultiplier = -(givenPosition.y) / GetDistance(givenPosition, constants.nullVector);
+        yMultiplier = givenPosition.x / GetDistance(givenPosition, constants.nullVector);
+
+        return Magnitude(givenVelocity) * (new Vector3(xMultiplier, yMultiplier, 0));
     }
 }

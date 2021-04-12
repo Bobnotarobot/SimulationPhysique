@@ -139,16 +139,14 @@ public class CSM : MonoBehaviour
         return angleToRotate;
     }
 
-    public void Unlink()
+    public void Unlink(Vector3 givenPosition, Vector3 givenVelocity, Vector3 givenOrientation)
     {
         linked = false;
+        position = transform.position * constants.scale;
+        velocity = givenVelocity;
         transform.parent = null;
-        
-        // position = new Vector3(startingHeight + moon.moonRadius, 0, 0);
-        transform.position = position / constants.scale;
-        velocity = new Vector3(0, initialVelocity, 0);
 
-        orientation = new Vector3(0, 0, 0);
+        orientation = givenOrientation;
         transform.rotation = Quaternion.Euler(orientation);
     }
 }

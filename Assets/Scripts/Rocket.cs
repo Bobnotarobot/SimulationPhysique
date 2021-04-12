@@ -20,7 +20,6 @@ public class Rocket : MonoBehaviour
     private Vector3 position;
     private Vector3 velocity;
     private Vector3 acceleration;
-    private float accelerationMulitplier; //Engine acceleration depends on mass left in rocket
 
     private float time = 0;
     private bool linked = true;
@@ -47,6 +46,14 @@ public class Rocket : MonoBehaviour
         transform.rotation = Quaternion.Euler(orientation);
     }
 
+    void Update()
+    {
+        if (Input.GetKeyDown("space"))
+        {
+            Unlink();
+        }
+    }
+
     void FixedUpdate()
     {
         acceleration = GetGravityAcceleration(position, moon.position);
@@ -58,11 +65,7 @@ public class Rocket : MonoBehaviour
 
         orientation += AngleToRotateOnlyZ(orientation, velocity);
         transform.rotation = Quaternion.Euler(orientation);
-
-        if (time > 5)
-        {
-            Unlink();
-        }
+        
         time += constants.fixedUpdateMultiplier;
     }
 
@@ -159,8 +162,8 @@ public class Rocket : MonoBehaviour
     private void Unlink()
     {
         linked = false;
-        lM.Unlink();
-        cSM.Unlink();
+        lM.Unlink(position, velocity, orientation);
+        cSM.Unlink(position, velocity, orientation);
         Destroy(gameObject);
     }
 }
