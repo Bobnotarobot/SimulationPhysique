@@ -42,6 +42,8 @@ public class LM : MonoBehaviour
         {
             uiManager = GameObject.FindGameObjectWithTag("Canvas").GetComponent<UIManager>();
         }
+
+        LMFuelMass = LMInitFuelMass;
     }
 
     void FixedUpdate()
@@ -52,7 +54,7 @@ public class LM : MonoBehaviour
         
             if (accelerating)
             {
-                acceleration += Accelerate(orientation);   
+                acceleration += Accelerate(orientation, 30);
             }
 
             velocity += acceleration * constants.fixedUpdateMultiplier * constants.timeMultiplier;
@@ -61,7 +63,7 @@ public class LM : MonoBehaviour
             transform.position = position / constants.scale;
 
             orientation += AngleToRotateOnlyZ(orientation, velocity);
-            transform.rotation = Quaternion.Euler(orientation);   
+            transform.rotation = Quaternion.Euler(orientation);
         }
     }
 
@@ -85,14 +87,14 @@ public class LM : MonoBehaviour
         return acceleration;
     }
 
-    Vector3 Accelerate(Vector3 orientation)
+    Vector3 Accelerate(Vector3 orientation, float thrustPercentage)
     {
         if (LMFuelMass > 0)
         {
             float zOrientation = orientation.z * Mathf.PI / 180;
             Vector3 addedAcceleration = new Vector3(Mathf.Sin(zOrientation - Mathf.PI), Mathf.Cos(zOrientation), 0);
-            addedAcceleration *= LMThrust / (LMDryMass + LMFuelMass);
-            LMFuelMass -= LMMassFlowRate * constants.fixedUpdateMultiplier * constants.timeMultiplier;
+            addedAcceleration *= LMThrust * thrustPercentage * 0.01f / (LMDryMass + LMFuelMass);
+            LMFuelMass -= LMMassFlowRate * thrustPercentage * 0.01f * constants.fixedUpdateMultiplier * constants.timeMultiplier;
             
             if (LMFuelMass < 0)
             {
@@ -101,7 +103,7 @@ public class LM : MonoBehaviour
             }
 
             uiManager.UpdateFuel(LMInitFuelMass, LMFuelMass);
-            return addedAcceleration;
+            return -addedAcceleration;
         }
         return constants.nullVector;
     }
