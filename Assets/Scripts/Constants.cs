@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Constants : MonoBehaviour
 {
-    public float scale = 100000; // meters per unity unit
+    public float scale = 10000; // meters per unity unit
     public float timeMultiplier = 100;
     public float fixedUpdateMultiplier = 0.02f; //Fixed Update runs at 50 fps
     

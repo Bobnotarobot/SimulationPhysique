@@ -24,6 +24,21 @@ public class LM : MonoBehaviour
     private bool accelerating = true;
     private bool linked = true;
 
+    private bool orbiting = true;
+    private bool smallAcceleration = false;
+    private bool DOI = false;
+    private bool breakingPhase = false;
+    private bool approachPhase = false;
+    private bool terminalDescent = false;
+
+    private float time = 0; // in seconds
+    private float smallAccelerationTime = 30f; // in seconds
+    private float DOITime = 600f; // in seconds
+    private float breakingPhaseTime = 650f; // in seconds
+    private float approachPhaseTime = 60f; // in seconds
+    private float terminalDescentTime = 60f; // in seconds
+
+
     private Vector3 orientation;
 
     void Start()
@@ -50,20 +65,70 @@ public class LM : MonoBehaviour
     {
         if (!linked)
         {
+            time += constants.fixedUpdateMultiplier * constants.timeMultiplier;
             acceleration = GetGravityAcceleration(position, moon.position);
-        
-            if (accelerating)
+            
+            if (orbiting)
             {
-                acceleration += Accelerate(orientation, 30);
+                acceleration = GetGravityAcceleration(position, moon.position);
+                orbiting = false;
+                smallAcceleration = true;
+                Debug.Log("started smallAcceleration");
+            }
+            else if (smallAcceleration)
+            {
+                acceleration += Accelerate(orientation + new Vector3(0,0,90), 20);
+                if (time > smallAccelerationTime)
+                {
+                    smallAcceleration = false;
+                    DOI = true;
+                    Debug.Log("started DOI");
+                }
+            }
+            else if (DOI)
+            {
+                if (time > DOITime)
+                {
+                    DOI = false;
+                    breakingPhase = true;
+                    Debug.Log("started breakingPhase");
+                }
             }
 
+            else if (breakingPhase)
+            {
+                if (time > breakingPhaseTime)
+                {
+                    breakingPhase = false;
+                    approachPhase = true;
+                    Debug.Log("started aproachPhase");
+                }
+            }
+            else if (approachPhase)
+            {
+                if (time > approachPhaseTime)
+                {
+                    approachPhase = false;
+                    terminalDescent = true;
+                    Debug.Log("started terminalDescent");
+                }
+            }
+            else if (terminalDescent)
+            {
+                if (time > terminalDescentTime)
+                {
+                    terminalDescent = false;
+                    Debug.Log("landing");
+                }
+            }
+            
             velocity += acceleration * constants.fixedUpdateMultiplier * constants.timeMultiplier;
             position += velocity * constants.fixedUpdateMultiplier * constants.timeMultiplier;
 
             transform.position = position / constants.scale;
 
             orientation += AngleToRotateOnlyZ(orientation, velocity);
-            transform.rotation = Quaternion.Euler(orientation);
+            transform.rotation = Quaternion.Euler(orientation);   
         }
     }
 
@@ -103,7 +168,7 @@ public class LM : MonoBehaviour
             }
 
             uiManager.UpdateFuel(LMInitFuelMass, LMFuelMass);
-            return -addedAcceleration;
+            return addedAcceleration;
         }
         return constants.nullVector;
     }
@@ -188,6 +253,7 @@ public class LM : MonoBehaviour
 
         orientation = givenOrientation;
         transform.rotation = Quaternion.Euler(orientation);
+
     }
 
     private Vector3 UpdateVelocity(Vector3 givenVelocity, Vector3 givenPosition)
