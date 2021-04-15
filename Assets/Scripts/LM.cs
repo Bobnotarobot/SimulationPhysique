@@ -41,7 +41,7 @@ public class LM : MonoBehaviour
     private float terminalDescentTime = 60f; // in seconds
 
     private float vc1 = 0; // speed at r1
-    private float deltav = -34.8f; // in m.s^-1
+    private float deltav = -34.9f; // in m.s^-1
 
     private Vector3 orientation;
 
@@ -147,7 +147,7 @@ public class LM : MonoBehaviour
             orientation += AngleToRotateOnlyZ(orientation, velocity);
             transform.rotation = Quaternion.Euler(orientation);
             
-            uiManager.UpdateHeight(Mathf.Round(GetHeight(position) * 1f) / 1000, Mathf.Round(Magnitude(velocity) * 10) / 10, Mathf.Round(Magnitude(acceleration) * 10) / 10, Mathf.Round(orientation.z * 10) / 10);
+            uiManager.UpdateHeight(Mathf.Round(GetHeight(position) * 1f) / 1000, Mathf.Round(Magnitude(velocity) * 10) / 10, Mathf.Round(Magnitude(acceleration) * 100) / 100, Mathf.Round(orientation.z * 10) / 10);
         }
     }
 
