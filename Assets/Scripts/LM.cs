@@ -41,7 +41,7 @@ public class LM : MonoBehaviour
     private float terminalDescentTime = 60f; // in seconds
 
     private float vc1 = 0; // speed at r1
-    private float deltav = -3384; // in m.s^-1
+    private float deltav = -34.8f; // in m.s^-1
 
     private Vector3 orientation;
 
@@ -102,6 +102,7 @@ public class LM : MonoBehaviour
             {
                 
                 acceleration += Accelerate(orientation + new Vector3(0,0,180), 100);
+                
                 if (Magnitude(velocity) - vc1 <= deltav)
                 {
                     DOI = false;
@@ -146,7 +147,7 @@ public class LM : MonoBehaviour
             orientation += AngleToRotateOnlyZ(orientation, velocity);
             transform.rotation = Quaternion.Euler(orientation);
             
-            uiManager.UpdateHeight(Mathf.Round(GetHeight(position) * 1f) / 1000, Mathf.Round(Magnitude(velocity) * 10) / 10, Mathf.Round(Magnitude(acceleration) * 10) / 10);
+            uiManager.UpdateHeight(Mathf.Round(GetHeight(position) * 1f) / 1000, Mathf.Round(Magnitude(velocity) * 10) / 10, Mathf.Round(Magnitude(acceleration) * 10) / 10, Mathf.Round(orientation.z * 10) / 10);
         }
     }
 
@@ -302,5 +303,22 @@ public class LM : MonoBehaviour
         yMultiplier = givenPosition.x / GetDistance(givenPosition, constants.nullVector);
 
         return Magnitude(givenVelocity) * (new Vector3(xMultiplier, yMultiplier, 0));
+    }
+
+    private bool CheckConditions()
+    {
+        return false;
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (CheckConditions())
+        {
+            Debug.Log("landed");
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
     }
 }

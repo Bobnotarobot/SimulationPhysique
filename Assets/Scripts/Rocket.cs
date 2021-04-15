@@ -44,7 +44,7 @@ public class Rocket : MonoBehaviour
             uiManager = GameObject.FindGameObjectWithTag("Canvas").GetComponent<UIManager>();
         }
 
-        initialVelocity = Mathf.Sqrt(constants.gravConst * moon.moonMass / (moon.moonRadius + startingHeight));
+        initialVelocity = Mathf.Sqrt(constants.gravConst * moon.moonMass / (moon.moonRadius + startingHeight)); // calculate to have cirvular orbit
 
         position = new Vector3(startingHeight + moon.moonRadius, 0, 0);
         transform.position = position / constants.scale;
@@ -77,7 +77,7 @@ public class Rocket : MonoBehaviour
         
         time += constants.fixedUpdateMultiplier;
         
-        uiManager.UpdateHeight(Mathf.Round(GetHeight(position) * 1f) / 1000, Mathf.Round(Magnitude(velocity) * 10) / 10, Mathf.Round(Magnitude(acceleration) * 10) / 10);
+        uiManager.UpdateHeight(Mathf.Round(GetHeight(position) * 1f) / 1000, Mathf.Round(Magnitude(velocity) * 10) / 10, Mathf.Round(Magnitude(acceleration) * 10) / 10, Mathf.Round(orientation.z * 10) / 10);
     }
     
     float GetHeight(Vector3 pos)

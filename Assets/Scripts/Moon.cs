@@ -6,7 +6,7 @@ public class Moon : MonoBehaviour
 {
     
     public float moonMass = 7.346f * Mathf.Pow(10,22); // kg
-    public float moonRadius = 1737.4f * Mathf.Pow(10,3); // m
+    public float moonRadius = 1737.1f * Mathf.Pow(10,3); // m
 
     public Vector3 position = new Vector3(0,0,0);
     
