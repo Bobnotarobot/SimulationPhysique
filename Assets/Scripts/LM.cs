@@ -38,6 +38,8 @@ public class LM : MonoBehaviour
     private float approachPhaseTime = 60f; // in seconds
     private float terminalDescentTime = 60f; // in seconds
 
+    private float vc1 = 0; // speed at r1
+    private float deltav = -3384; // in m.s^-1
 
     private Vector3 orientation;
 
@@ -65,6 +67,7 @@ public class LM : MonoBehaviour
     {
         if (!linked)
         {
+            uiManager.UpdateHeight(Mathf.Round(GetHeight(position) * 100) / 100);
             time += constants.fixedUpdateMultiplier * constants.timeMultiplier;
             acceleration = GetGravityAcceleration(position, moon.position);
             
@@ -77,17 +80,17 @@ public class LM : MonoBehaviour
             }
             else if (smallAcceleration)
             {
-                acceleration += Accelerate(orientation + new Vector3(0,0,90), 20);
+                acceleration += Accelerate(orientation + new Vector3(0,0,50), 20);
                 if (time > smallAccelerationTime)
                 {
                     smallAcceleration = false;
-                    DOI = true;
-                    Debug.Log("started DOI");
+                    StartDOI();
                 }
             }
             else if (DOI)
             {
-                if (time > DOITime)
+                acceleration += Accelerate(-orientation, 100);
+                if (Magnitude(velocity) - vc1 <= deltav)
                 {
                     DOI = false;
                     breakingPhase = true;
@@ -129,6 +132,25 @@ public class LM : MonoBehaviour
 
             orientation += AngleToRotateOnlyZ(orientation, velocity);
             transform.rotation = Quaternion.Euler(orientation);   
+        }
+    }
+
+    void StartDOI()
+    {
+        vc1 = Magnitude(velocity);
+        DOI = true;
+        Debug.Log("started DOI");
+    }
+
+    float GetHeight(Vector3 pos)
+    {
+        if (Magnitude(pos) > moon.moonRadius)
+        {
+            return Magnitude(pos) - moon.moonRadius;
+        }
+        else
+        {
+            return 0;
         }
     }
 

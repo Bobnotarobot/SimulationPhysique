@@ -7,13 +7,14 @@ public class Rocket : MonoBehaviour
 
     public float startingHeight = 111.045f * Mathf.Pow(10, 3); // m
 
-    private float initialVelocity = 1628f; // m.s^-1  1628f
+    private float initialVelocity = 1628.115131f; // m.s^-1
     private float LMDryMass = 4280; // kg mass when the rocket is empty
     private float LMInitFuelMass = 7942; // kg mass of the fuel only
     private float CSMDryMass = 23572; // kg
 
     public Moon moon;
     public Constants constants;
+    public UIManager uiManager;
     public LM lM;
     public CSM cSM;
 
@@ -37,6 +38,13 @@ public class Rocket : MonoBehaviour
         {
             moon = GameObject.FindGameObjectWithTag("Moon").GetComponent<Moon>();
         }
+        
+        if (uiManager == null)
+        {
+            uiManager = GameObject.FindGameObjectWithTag("Canvas").GetComponent<UIManager>();
+        }
+
+        initialVelocity = Mathf.Sqrt(constants.gravConst * moon.moonMass / (moon.moonRadius + startingHeight));
 
         position = new Vector3(startingHeight + moon.moonRadius, 0, 0);
         transform.position = position / constants.scale;
@@ -56,6 +64,8 @@ public class Rocket : MonoBehaviour
 
     void FixedUpdate()
     {
+        uiManager.UpdateHeight(Mathf.Round(GetHeight(position) * 1f) / 1000);
+        
         acceleration = GetGravityAcceleration(position, moon.position);
 
         velocity += acceleration * constants.fixedUpdateMultiplier * constants.timeMultiplier;
@@ -68,7 +78,19 @@ public class Rocket : MonoBehaviour
         
         time += constants.fixedUpdateMultiplier;
     }
-
+    
+    float GetHeight(Vector3 pos)
+    {
+        if (Magnitude(pos) > moon.moonRadius)
+        {
+            return Magnitude(pos) - moon.moonRadius;
+        }
+        else
+        {
+            return 0;
+        }
+    }
+    
     float GetDistance(Vector3 pos1, Vector3 pos2)
     {
         float distance = 0;

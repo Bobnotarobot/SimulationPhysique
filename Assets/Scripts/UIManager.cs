@@ -9,6 +9,7 @@ public class UIManager : MonoBehaviour
     public Constants constants;
     public TextMeshProUGUI timeTxt;
     public TextMeshProUGUI fuelTxt;
+    public TextMeshProUGUI heightTxt;
     public float time = 0;
     
     void Start()
@@ -66,7 +67,7 @@ public class UIManager : MonoBehaviour
             secsTxt = "";
         }
         
-        return (hoursTxt + hours + " h " + minsTxt + mins + " mins " + secsTxt + secs + " secs");
+        return (hoursTxt + hours + " h " + minsTxt + mins + " m " + secsTxt + secs + " s");
     }
     
     private IEnumerator Timer()
@@ -81,5 +82,10 @@ public class UIManager : MonoBehaviour
     public void UpdateFuel(float inititalFuel, float currentFuel)
     {
         fuelTxt.text = "fuel: " + Mathf.Round(currentFuel / inititalFuel * 1000) / 10 + "%";
+    }
+
+    public void UpdateHeight(float newHeight)
+    {
+        heightTxt.text = "height: " + newHeight + " km";
     }
 }
