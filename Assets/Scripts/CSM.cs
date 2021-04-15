@@ -11,6 +11,8 @@ public class CSM : MonoBehaviour
     public Moon moon;
     public Constants constants;
 
+    public GameObject greenDot;
+
     private Vector3 position;
     private Vector3 velocity;
     private Vector3 acceleration;
@@ -31,6 +33,8 @@ public class CSM : MonoBehaviour
         {
             moon = GameObject.FindGameObjectWithTag("Moon").GetComponent<Moon>();
         }
+        
+        StartCoroutine(GreenDots());
     }
 
     void FixedUpdate()
@@ -46,6 +50,15 @@ public class CSM : MonoBehaviour
 
             orientation += AngleToRotateOnlyZ(orientation, velocity);
             transform.rotation = Quaternion.Euler(orientation);   
+        }
+    }
+    
+    IEnumerator GreenDots() 
+    {
+        while (true)
+        {
+            Instantiate(greenDot, this.transform.position, Quaternion.identity);
+            yield return new WaitForSeconds(3 / constants.timeMultiplier);
         }
     }
 

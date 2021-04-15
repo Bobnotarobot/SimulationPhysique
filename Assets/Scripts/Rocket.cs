@@ -64,8 +64,7 @@ public class Rocket : MonoBehaviour
 
     void FixedUpdate()
     {
-        uiManager.UpdateHeight(Mathf.Round(GetHeight(position) * 1f) / 1000);
-        
+
         acceleration = GetGravityAcceleration(position, moon.position);
 
         velocity += acceleration * constants.fixedUpdateMultiplier * constants.timeMultiplier;
@@ -77,6 +76,8 @@ public class Rocket : MonoBehaviour
         transform.rotation = Quaternion.Euler(orientation);
         
         time += constants.fixedUpdateMultiplier;
+        
+        uiManager.UpdateHeight(Mathf.Round(GetHeight(position) * 1f) / 1000, Mathf.Round(Magnitude(velocity) * 10) / 10, Mathf.Round(Magnitude(acceleration) * 10) / 10);
     }
     
     float GetHeight(Vector3 pos)

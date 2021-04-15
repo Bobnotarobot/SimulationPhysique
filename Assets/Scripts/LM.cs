@@ -15,6 +15,8 @@ public class LM : MonoBehaviour
     public Moon moon;
     public Constants constants;
     public UIManager uiManager;
+    
+    public GameObject redDot;
 
     private Vector3 position;
     private Vector3 velocity;
@@ -61,26 +63,35 @@ public class LM : MonoBehaviour
         }
 
         LMFuelMass = LMInitFuelMass;
+
+        StartCoroutine(RedDots());
+    }
+    
+    IEnumerator RedDots() 
+    {
+        while (true)
+        {
+            Instantiate(redDot, this.transform.position, Quaternion.identity);
+            yield return new WaitForSeconds(3 / constants.timeMultiplier);
+        }
     }
 
     void FixedUpdate()
     {
         if (!linked)
         {
-            uiManager.UpdateHeight(Mathf.Round(GetHeight(position) * 100) / 100);
             time += constants.fixedUpdateMultiplier * constants.timeMultiplier;
             acceleration = GetGravityAcceleration(position, moon.position);
             
             if (orbiting)
             {
-                acceleration = GetGravityAcceleration(position, moon.position);
                 orbiting = false;
                 smallAcceleration = true;
                 Debug.Log("started smallAcceleration");
             }
             else if (smallAcceleration)
             {
-                acceleration += Accelerate(orientation + new Vector3(0,0,50), 20);
+                acceleration += Accelerate(orientation + new Vector3(0,0,30), 20);
                 if (time > smallAccelerationTime)
                 {
                     smallAcceleration = false;
@@ -89,13 +100,15 @@ public class LM : MonoBehaviour
             }
             else if (DOI)
             {
-                acceleration += Accelerate(-orientation, 100);
+                
+                acceleration += Accelerate(orientation + new Vector3(0,0,180), 100);
                 if (Magnitude(velocity) - vc1 <= deltav)
                 {
                     DOI = false;
                     breakingPhase = true;
                     Debug.Log("started breakingPhase");
                 }
+                
             }
 
             else if (breakingPhase)
@@ -131,7 +144,9 @@ public class LM : MonoBehaviour
             transform.position = position / constants.scale;
 
             orientation += AngleToRotateOnlyZ(orientation, velocity);
-            transform.rotation = Quaternion.Euler(orientation);   
+            transform.rotation = Quaternion.Euler(orientation);
+            
+            uiManager.UpdateHeight(Mathf.Round(GetHeight(position) * 1f) / 1000, Mathf.Round(Magnitude(velocity) * 10) / 10, Mathf.Round(Magnitude(acceleration) * 10) / 10);
         }
     }
 

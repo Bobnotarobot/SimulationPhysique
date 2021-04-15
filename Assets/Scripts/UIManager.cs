@@ -10,6 +10,8 @@ public class UIManager : MonoBehaviour
     public TextMeshProUGUI timeTxt;
     public TextMeshProUGUI fuelTxt;
     public TextMeshProUGUI heightTxt;
+    public TextMeshProUGUI speedTxt;
+    public TextMeshProUGUI accelerationTxt;
     public float time = 0;
     
     void Start()
@@ -84,8 +86,10 @@ public class UIManager : MonoBehaviour
         fuelTxt.text = "fuel: " + Mathf.Round(currentFuel / inititalFuel * 1000) / 10 + "%";
     }
 
-    public void UpdateHeight(float newHeight)
+    public void UpdateHeight(float newHeight, float newSpeed, float newAcceleration)
     {
         heightTxt.text = "height: " + newHeight + " km";
+        speedTxt.text = "speed: " + newSpeed;
+        accelerationTxt.text = "acc: " + newAcceleration;
     }
 }
