@@ -115,9 +115,9 @@ public class Rocket : MonoBehaviour
     {
         Vector3 targetAngles = constants.nullVector;
         Vector3 angleToRotate = constants.nullVector;
-
-
+        
         // Calculate the global orientation of the target vector
+        
         float x = targetVector.x;
         float y = targetVector.y;
 
