@@ -5,7 +5,7 @@ using UnityEngine;
 public class Rocket : MonoBehaviour
 {
 
-    public float startingHeight = 111.045f * Mathf.Pow(10, 3); // m
+    private float startingHeight = 111.000f * Mathf.Pow(10, 3); // m
 
     private float initialVelocity = 1628.115131f; // m.s^-1
     private float LMDryMass = 4280; // kg mass when the rocket is empty

@@ -878,9 +878,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   scale: 1000
-  timeMultiplier: 50
+  timeMultiplier: 20
   fixedUpdateMultiplier: 0.02
-  gravConst: 6.67e-11
+  gravConst: 6.67408e-11
   nullVector: {x: 0, y: 0, z: 0}
 --- !u!4 &1260143510
 Transform:
@@ -1486,6 +1486,11 @@ PrefabInstance:
       propertyPath: constants
       value: 
       objectReference: {fileID: 1260143509}
+    - target: {fileID: 5982590571075569618, guid: 5dc4167a8fba73e4fad2e975a81af3ca,
+        type: 3}
+      propertyPath: startingHeight
+      value: 111045
+      objectReference: {fileID: 0}
     - target: {fileID: 5982590571075569621, guid: 5dc4167a8fba73e4fad2e975a81af3ca,
         type: 3}
       propertyPath: m_Name

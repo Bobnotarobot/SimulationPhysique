@@ -57,8 +57,8 @@ public class CSM : MonoBehaviour
     {
         while (true)
         {
-            Instantiate(greenDot, this.transform.position, Quaternion.identity);
             yield return new WaitForSeconds(3 / constants.timeMultiplier);
+            Instantiate(greenDot, this.transform.position, Quaternion.identity);
         }
     }
 

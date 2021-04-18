@@ -29,6 +29,7 @@ public class LM : MonoBehaviour
     private bool orbiting = true;
     private bool smallAcceleration = false;
     private bool DOI = false;
+    private bool DOIwaiting = false;
     private bool breakingPhase = false;
     private bool approachPhase = false;
     private bool terminalDescent = false;
@@ -41,7 +42,8 @@ public class LM : MonoBehaviour
     private float terminalDescentTime = 60f; // in seconds
 
     private float vc1 = 0; // speed at r1
-    private float deltav = -34.9f; // in m.s^-1
+    private float DOIstart = 0;
+    private float deltav = -21.8557f; // in m.s^-1
 
     private Vector3 orientation;
 
@@ -71,8 +73,8 @@ public class LM : MonoBehaviour
     {
         while (true)
         {
-            Instantiate(redDot, this.transform.position, Quaternion.identity);
             yield return new WaitForSeconds(3 / constants.timeMultiplier);
+            Instantiate(redDot, this.transform.position, Quaternion.identity);
         }
     }
 
@@ -87,7 +89,7 @@ public class LM : MonoBehaviour
             {
                 orbiting = false;
                 smallAcceleration = true;
-                Debug.Log("started smallAcceleration");
+                Debug.Log("started small acceleration");
             }
             else if (smallAcceleration)
             {
@@ -100,16 +102,25 @@ public class LM : MonoBehaviour
             }
             else if (DOI)
             {
-                
-                acceleration += Accelerate(orientation + new Vector3(0,0,180), 100);
-                
-                if (Magnitude(velocity) - vc1 <= deltav)
+                Debug.Log(Magnitude(velocity) - vc1);
+                // if (Magnitude(velocity) - vc1 <= deltav)
+                if (time - DOIstart >= 30)
                 {
                     DOI = false;
-                    breakingPhase = true;
-                    Debug.Log("started breakingPhase");
+                    DOIwaiting = true;
                 }
-                
+                acceleration += Accelerate(orientation + new Vector3(0,0,180), 100);
+
+            }
+            
+            else if (DOIwaiting)
+            {
+                if (GetHeight(position) <= 15)
+                {
+                    DOIwaiting = false;
+                    breakingPhase = true;
+                    Debug.Log("started breaking phase");
+                }
             }
 
             else if (breakingPhase)
@@ -118,7 +129,7 @@ public class LM : MonoBehaviour
                 {
                     breakingPhase = false;
                     approachPhase = true;
-                    Debug.Log("started aproachPhase");
+                    Debug.Log("started approach phase");
                 }
             }
             else if (approachPhase)
@@ -127,7 +138,7 @@ public class LM : MonoBehaviour
                 {
                     approachPhase = false;
                     terminalDescent = true;
-                    Debug.Log("started terminalDescent");
+                    Debug.Log("started terminal descent");
                 }
             }
             else if (terminalDescent)
@@ -154,6 +165,7 @@ public class LM : MonoBehaviour
     void StartDOI()
     {
         vc1 = Magnitude(velocity);
+        DOIstart = time;
         DOI = true;
         Debug.Log("started DOI");
     }
